@@ -1,0 +1,227 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
+import pymysql
+
+
+class Grocery:
+    def __init__(self,root):
+        self.root=root
+        self.root.title("Grocery Management System")
+        self.root.geometry("1350x750+0+0")
+
+        self.itemid=StringVar()
+        self.itemname=StringVar()
+        self.quantity=StringVar()
+        self.price=StringVar()
+        self.discount=StringVar()
+        self.weight=StringVar()
+        self.search_by=StringVar()
+        self.search_txt=StringVar()
+        self.totalrecord=StringVar()
+
+        headinglbl=Label(root,text="Grocery Management System",font=("arial",24,"bold"),bg='pink',fg='red')
+        headinglbl.pack(side=TOP,fill=X)
+
+        #***********Frame-1***************
+        entry_frame=Frame(root,bd=5,relief='ridge',bg='pink')
+        entry_frame.place(x=20,y=50,width=350,height=745)
+
+        #Labels of frame-1
+        reg_lbl=Label(entry_frame,text="Entry Form",font=("arial",20,"bold"),bg='pink',fg='red')
+        reg_lbl.grid(row=0,columnspan=2)
+
+        itemid_lbl=Label(entry_frame,text="ITEM ID",font=("",13))
+        itemid_lbl.grid(row=1,column=0,sticky='w',padx=10,pady=11)
+
+        itemname_lbl=Label(entry_frame,text="ITEM NAME",font=("",13))
+        itemname_lbl.grid(row=2,column=0,sticky='w',padx=10,pady=11)
+
+        quantity_lbl=Label(entry_frame,text="QUANTITY",font=("",13))
+        quantity_lbl.grid(row=3,column=0,sticky='w',padx=10,pady=11)
+
+        price_lbl=Label(entry_frame,text="PRICE",font=("",13))
+        price_lbl.grid(row=4,column=0,sticky='w',padx=10,pady=11)
+
+        discount_lbl=Label(entry_frame,text="DISCOUNT",font=("",13))
+        discount_lbl.grid(row=5,column=0,sticky='w',padx=10,pady=11)
+
+        weight_lbl=Label(entry_frame,text="WEIGHT",font=("",13))
+        weight_lbl.grid(row=6,column=0,sticky='w',padx=10,pady=11)
+
+
+        #Entry box of Frame-1
+        itemid_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.itemid)
+        itemid_entry.grid(row=1,column=1,sticky='w',padx=10,pady=11)
+
+        itemname_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.itemname)
+        itemname_entry.grid(row=2,column=1,sticky='w',padx=10,pady=11)
+
+        quantity_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.quantity)
+        quantity_entry.grid(row=3,column=1,sticky='w',padx=10,pady=11)
+
+
+        price_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.price)
+        price_entry.grid(row=4,column=1,sticky='w',padx=10,pady=11)
+
+        discount_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.discount)
+        discount_entry.grid(row=5,column=1,sticky='w',padx=10,pady=11)
+
+        weight_entry=Entry(entry_frame,bd=3,relief='ridge',font=("",12),textvariable=self.weight)
+        weight_entry.grid(row=6,column=1,sticky='w',padx=10,pady=11)
+
+
+        #***************Functions*********************
+
+
+        def add_data():
+                con=pymysql.connect(host='localhost',user='root',password='',database='grocery_management_system')
+                cur=con.cursor()
+                cur.execute('insert into grocery values(%s,%s,%s,%s,%s,%s)',(self.itemid.get(),self.itemname.get(),self.quantity.get(),self.price.get(),self.discount.get(),self.weight.get()))
+                con.commit()
+                con.close()	
+                fetch_data()
+                clear_data()
+                messagebox.showinfo('Success','Record has been submitted')
+        
+        
+        def fetch_data():
+            con=pymysql.connect(host='localhost',user='root',password='',database='grocery_management_system')
+            cur=con.cursor()
+            cur.execute('select * from grocery')
+            rows=cur.fetchall()
+            con.commit()
+            con.close()
+
+
+        def clear_data():
+            self.itemid.set("")
+            self.itemname.set("")
+            self.quantity.set("")
+            self.price.set("")
+            self.discount.set("")
+            self.weight.set("")
+
+
+        
+
+        def update_data():
+            
+            con=pymysql.connect(host='localhost',user='root',password='',database='grocery_management_system')
+            cur=con.cursor()
+            cur.execute('update grocery set itemid=%s , itemname=%s , quantity=%s , price=%s , discount=%s , weight=%s  where itemid=%s ',(self.itemid.get(),self.itemname.get(),self.quantity.get(),self.price.get(),self.discount.get(),self.weight.get(),self.itemid.get()))
+            con.commit()
+            con.close()
+            fetch_data()
+            clear_data()
+            messagebox.showinfo('Success','Record has been updated')
+
+
+        def delete_data():
+            con=pymysql.connect(host='localhost',user='root',password='',database='grocery_management_system')
+            cur=con.cursor()
+            cur.execute('delete from grocery where itemid=%s ',self.itemid.get())
+            con.commit()
+            con.close()
+            fetch_data()
+            clear_data()
+            messagebox.showinfo('Success','Record has been deleted')
+
+        def search():
+            con=pymysql.connect(host='localhost',user='root',password='',database='grocery_management_system')
+            cur=con.cursor()
+            cur.execute("select * from grocery where "+str(self.search_by.get())+" LIKE '%"+str(self.search_txt.get())+"%'")
+            rows=cur.fetchall()
+            con.close()
+			
+	
+			
+
+
+
+
+
+
+    #-------------------------------------------------------------------
+
+        #**********Frame-3 Button**************
+        btn_frame=Frame(entry_frame,bd=5,relief='ridge',bg='yellow')
+        btn_frame.place(x=15,y=590,width=310,height=120)
+        
+        add_btn=Button(btn_frame,text='Add',font=("",12),command=add_data,width="7")
+        add_btn.grid(row=0,column=1,padx=50,pady=10)
+        
+        update_btn=Button(btn_frame,text='Update',font=("",12),command=update_data,width="7")
+        update_btn.grid(row=0,column=2,padx=10,pady=10)
+        
+        delete_btn=Button(btn_frame,text='Delete',font=("",12),command=delete_data,width="7")
+        delete_btn.grid(row=1,column=1,padx=50,pady=10)
+        
+        clear_btn=Button(btn_frame,text='Clear',font=("",12),command=clear_data,width="7")
+        clear_btn.grid(row=1,column=2,padx=10,pady=10)
+
+
+        #***********Frame-2***************
+        data_frame=Frame(root,bd=5,relief='ridge',bg='green')
+        data_frame.place(x=380,y=50,width=1145,height=745)
+
+        #***********Frame-2 code*****************
+        search_lbl=Label(data_frame,text="Search by",font=("",13))
+        search_lbl.grid(row=0,column=0,sticky='w',padx=10,pady=14)
+        
+        search_combo=ttk.Combobox(data_frame,state='readonly',textvariable=self.search_by)
+        search_combo['values']=('Itemid','Itemname')
+        search_combo.current(0)
+        search_combo.grid(row=0,column=1,sticky='w',padx=10,pady=14)
+        
+        search_entry=Entry(data_frame,bd=3,relief='ridge',font=("",12),width=15,textvariable=self.search_txt)
+        search_entry.grid(row=0,column=2,sticky='w',padx=10,pady=14)
+        
+        show_btn=Button(data_frame,text='Show',font=("",12),command=search)
+        show_btn.grid(row=0,column=3,padx=10,pady=10)
+        
+        showall_btn=Button(data_frame,text='Show All',font=("",12),command=fetch_data)
+        showall_btn.grid(row=0,column=4,padx=10,pady=10)
+        
+        total_lbl=Label(data_frame,text="Total Records",font=("",13))
+        total_lbl.grid(row=1,column=0,sticky='w',padx=10,pady=8)
+        
+        totalrecord_lbl=Label(data_frame,text="Total Records",font=("",13),textvariable=self.totalrecord)
+        totalrecord_lbl.grid(row=1,column=1,sticky='w',padx=10,pady=8)
+
+
+        
+		#************Frame-3 Treeview***************
+        
+        view_frame=Frame(data_frame,bd=5,relief='ridge',bg='yellow')
+        view_frame.place(x=20,y=100,width=1080,height=620)
+        
+        x_scroll=Scrollbar(view_frame,orient=HORIZONTAL)
+        y_scroll=Scrollbar(view_frame,orient=VERTICAL)
+        table=ttk.Treeview(view_frame,columns=('ItemID','ItemName','Quantity','Price','Discount','Weight'),xscrollcommand=x_scroll.set,yscrollcommand=y_scroll.set)
+        x_scroll.pack(side=BOTTOM,fill=X)
+        y_scroll.pack(side=RIGHT,fill=Y)
+        x_scroll.configure(command=table.xview)
+        y_scroll.configure(command=table.yview)
+        
+        table.heading("ItemID",text="ItemID")
+        table.heading("ItemName",text="ItemName")
+        table.heading("Quantity",text="Quantity")
+        table.heading("Price",text="Price")
+        table.heading("Discount",text="Discount")
+        table.heading("Weight",text="Weight")
+        
+        table.column("ItemID",width=100)
+        table.column("ItemName",width=100)
+        table.column("Quantity",width=100)
+        table.column("Price",width=100)
+        table.column("Discount",width=100)
+        table.column("Weight",width=100)
+        table['show']='headings'
+
+        fetch_data()
+        table.pack(fill=BOTH,expand=1)
+
+root=Tk()
+ob=Grocery(root)
+root.mainloop()
